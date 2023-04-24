@@ -66,16 +66,21 @@ def retrieve(index, query, namespace):
 
 def complete(prompt):
     # query text-davinci-003
-    res = openai.Completion.create(
-        engine='text-davinci-003',
-        prompt=prompt,
+    res = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "system", "content":"You are an assistant that only provides relevant answers."},
+                  {'role': 'user', 'content':  "Answer me only if the file below the --- is relevant to the question. If not relevant say so and provide an answer beyond the uploaded file. If relevant, answer in detail" + prompt}],
+        max_tokens=1024,
+        n=1,
         temperature=0,
-        max_tokens=400,
         top_p=1,
-        frequency_penalty=0,
-        presence_penalty=0,
-        stop=None
+        frequency_penalty=0.0,
+        presence_penalty=0.6,
     )
+    # Get the response text from the API response
+    response_text = res['choices'][0]['message']['content']
+
+    return response_text
     return res['choices'][0]['text'].strip()
 
 def get_query_results(open_api_key, pinecone_api_key, pinecone_api_env, index_name, namespace, query):
