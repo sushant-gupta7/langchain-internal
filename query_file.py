@@ -1,21 +1,5 @@
-import os
-from llama_index import download_loader
-from langchain.llms import OpenAI
 import openai
-from langchain.document_loaders import UnstructuredPDFLoader, OnlinePDFLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.vectorstores import Chroma, Pinecone
-from langchain.embeddings.openai import OpenAIEmbeddings
-from pathlib import Path
 import pinecone
-from langchain.chains.conversation.memory import ConversationBufferMemory
-from langchain.docstore.document import Document
-from tqdm.auto import tqdm
-import tiktoken
-from pathlib import Path
-from gpt_index import download_loader
-from sentence_transformers import SentenceTransformer
-from transformers import pipeline
 
 
 def initialize_open_ai(OPENAI_API_KEY):
@@ -31,6 +15,7 @@ def initialize_pinecone(PINECONE_API_KEY, PINECONE_API_ENV, index_name):
 
     index = pinecone.Index(index_name)
     return index
+
 
 def retrieve(index, query, namespace):
 
@@ -64,6 +49,7 @@ def retrieve(index, query, namespace):
 
     return prompt
 
+
 def complete(prompt):
     # query text-davinci-003
     res = openai.ChatCompletion.create(
@@ -81,12 +67,10 @@ def complete(prompt):
     response_text = res['choices'][0]['message']['content']
 
     return response_text
-    return res['choices'][0]['text'].strip()
 
 def get_query_results(open_api_key, pinecone_api_key, pinecone_api_env, index_name, namespace, query):
     initialize_open_ai(open_api_key)
     index = initialize_pinecone(pinecone_api_key, pinecone_api_env, index_name)
     query_with_contexts = retrieve(index, query, namespace)
     data = complete(query_with_contexts)
-
     return data

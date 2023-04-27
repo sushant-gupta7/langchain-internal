@@ -1,9 +1,9 @@
 from flask import Flask, request, jsonify
 import os
-from pathlib import Path
 from werkzeug.utils import secure_filename
 from internal_project import *
 from query_file import *
+from delete_vectors import *
 from flask_cors import CORS
 
 save_path = 'C:/Users/SDADMIN23/Desktop/files/'
@@ -61,6 +61,20 @@ def queryfile():
         data = jsonify(query_result)
         status = 200
         return data, status,  {'Access-Control-Allow-Origin': '*'}
+
+
+@app.route("/deleteVectors", methods=['GET'])
+def deleteVectors():
+    if request.method == 'GET':
+        f = open("credentials.txt", "r")
+        lines = f.read().splitlines()
+        pinecone_api_key = lines[1]
+        pinecone_api_env = lines[2]
+        index_name = lines[3]
+        f.close()
+        delete_index_vectors(pinecone_api_key, pinecone_api_env, index_name)
+        status = 200
+        return 'Vectors Deleted', status,  {'Access-Control-Allow-Origin': '*'}
 
 
 if __name__ == '__main__':
